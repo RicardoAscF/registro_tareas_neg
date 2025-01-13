@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker de Productividad</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            width: 300px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            font-size: 1.5em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .reset-button {
+            background-color: #e74c3c;
+        }
+        .reset-button:hover {
+            background-color: #c0392b;
+        }
+        .wall {
+            margin-top: 20px;
+        }
+        .week {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .block {
+            width: 40px;
+            height: 40px;
+            margin: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            border-radius: 5px;
+            color: white;
+        }
+        .green {
+            background-color: #2ecc71;
+        }
+        .red {
+            background-color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="section">
+        <h2>Me toque ahi</h2>
+        <button onclick="addBlock('green', 'wall1neg')">Día Productivo</button>
+        <button onclick="addBlock('red', 'wall1neg')">Día No Productivo</button>
+        <button class="reset-button" onclick="resetWall('wall1neg')">Resetear</button>
+        <div id="wall1neg" class="wall"></div>
+    </div>
+
+    <div class="section">
+        <h2>Me acoste</h2>
+        <button onclick="addBlock('green', 'wall2neg')">Día Productivo</button>
+        <button onclick="addBlock('red', 'wall2neg')">Día No Productivo</button>
+        <button class="reset-button" onclick="resetWall('wall2neg')">Resetear</button>
+        <div id="wall2neg" class="wall"></div>
+    </div>
+
+    <div class="section">
+        <h2>Masturbe</h2>
+        <button onclick="addBlock('green', 'wall3neg')">Día Productivo</button>
+        <button onclick="addBlock('red', 'wall3neg')">Día No Productivo</button>
+        <button class="reset-button" onclick="resetWall('wall3neg')">Resetear</button>
+        <div id="wall3neg" class="wall"></div>
+    </div>
+
+    <div class="section">
+        <h2>Abri Tik Tok</h2>
+        <button onclick="addBlock('green', 'wall4neg')">Día Productivo</button>
+        <button onclick="addBlock('red', 'wall4neg')">Día No Productivo</button>
+        <button class="reset-button" onclick="resetWall('wall4neg')">Resetear</button>
+        <div id="wall4neg" class="wall"></div>
+    </div>
+
+
+
+    <div class="section">
+        <h2>Divage</h2>
+        <button onclick="addBlock('green', 'wall5neg')">Día Productivo</button>
+        <button onclick="addBlock('red', 'wall5neg')">Día No Productivo</button>
+        <button class="reset-button" onclick="resetWall('wall5neg')">Resetear</button>
+        <div id="wall5neg" class="wall"></div>
+    </div>
+
+
+
+    <script>
+        const today = new Date();
+        let blockCount = today.getDate();
+        const currentMonth = today.getMonth();
+        let monthCount = currentMonth;
+
+        window.onload = function() {
+            loadBlocks('wall1neg');
+            loadBlocks('wall2neg');
+            loadBlocks('wall3neg');
+            loadBlocks('wall4neg');
+            loadBlocks('wall5neg');
+            checkAndUpdateBlockCount();
+        };
+
+        function checkAndUpdateBlockCount() {
+            const lastIncrementDate = localStorage.getItem('lastIncrementDate');
+            const todayString = today.toISOString().split('T')[0]; // Formato 'YYYY-MM-DD'
+
+            if (lastIncrementDate !== todayString) {
+                blockCount++;
+                localStorage.setItem('lastIncrementDate', todayString); // Actualiza la fecha
+                if (blockCount > new Date(today.getFullYear(), monthCount + 1, 0).getDate()) {
+                    blockCount = 1;
+                    monthCount++;
+                }
+            }
+        }
+
+        function addBlock(color, wallId) {
+            const wall = document.getElementById(wallId);
+            let currentWeek = wall.lastElementChild;
+
+            if (!currentWeek || currentWeek.children.length >= 7) {
+                currentWeek = document.createElement('div');
+                currentWeek.className = 'week';
+                wall.appendChild(currentWeek);
+            }
+
+            const block = document.createElement('div');
+            block.className = 'block ' + color;
+            block.textContent = `${blockCount}/${getMonthName(monthCount)}`;
+            currentWeek.appendChild(block);
+
+            saveBlock(wallId, blockCount, monthCount, color);
+        }
+
+        function saveBlock(wallId, day, month, color) {
+            const blocks = JSON.parse(localStorage.getItem(wallId)) || [];
+            blocks.push({ day, month, color });
+            localStorage.setItem(wallId, JSON.stringify(blocks));
+        }
+
+        function loadBlocks(wallId) {
+            const blocks = JSON.parse(localStorage.getItem(wallId)) || [];
+            blocks.forEach(block => {
+                const wall = document.getElementById(wallId);
+                let currentWeek = wall.lastElementChild;
+
+                if (!currentWeek || currentWeek.children.length >= 7) {
+                    currentWeek = document.createElement('div');
+                    currentWeek.className = 'week';
+                    wall.appendChild(currentWeek);
+                }
+
+                const blockElement = document.createElement('div');
+                blockElement.className = 'block ' + block.color;
+                blockElement.textContent = `${block.day}/${getMonthName(block.month)}`;
+                currentWeek.appendChild(blockElement);
+            });
+        }
+
+        function resetWall(wallId) {
+            const wall = document.getElementById(wallId);
+            wall.innerHTML = '';  // Limpia el contenido visual del muro
+            localStorage.removeItem(wallId);  // Limpia el almacenamiento en caché
+        }
+
+        function getMonthName(month) {
+            const months = ["En", "Fe", "Mz", "Ab", "My", "Jn",
+                            "Jl", "Ag", "Se", "Oc", "No", "Di"];
+            return months[month % 12];
+        }
+    </script>
+</body>
+</html>
