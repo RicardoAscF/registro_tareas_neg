@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracker de Productividad</title>
+    <title>Tasks Neg</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -189,7 +189,7 @@
 
                 const blockElement = document.createElement('div');
                 blockElement.className = 'block ' + block.color;
-                blockElement.textContent = `${block.day}/${getMonthName(block.month)}`;
+                blockElement.textContent = `${block.day}${getMonthName(block.month)}`;
                 currentWeek.appendChild(blockElement);
             });
         }
