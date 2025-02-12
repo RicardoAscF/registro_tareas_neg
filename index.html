@@ -151,6 +151,7 @@
             }
         }
 
+        /*
         function addBlock(color, wallId) {
             const wall = document.getElementById(wallId);
             let currentWeek = wall.lastElementChild;
@@ -168,6 +169,50 @@
 
             saveBlock(wallId, blockCount, monthCount, color);
         }
+            */
+
+
+
+            function addBlock(color, wallId) {
+            const wall = document.getElementById(wallId);
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0]; // Fecha actual en formato 'YYYY-MM-DD'
+            const formattedDate = `${today.getDate()}/${getMonthName(today.getMonth())}/${today.getFullYear()}`; // Formato 'D/M/AAAA'
+
+            let lastDate = localStorage.getItem(wallId + "_lastDate");
+            let currentWeek = wall.lastElementChild;
+
+            // Si la fecha ha cambiado o no hay una semana existente, se agrega un label y una nueva fila
+            if (!lastDate || lastDate !== todayString || !currentWeek || currentWeek.children.length >= 7) {
+                // Crear y agregar label con la nueva fecha
+                const dateLabel = document.createElement('div');
+                dateLabel.textContent = formattedDate;
+                dateLabel.style.fontWeight = 'bold';
+                dateLabel.style.marginTop = '10px';
+                dateLabel.style.textAlign = 'left';
+                wall.appendChild(dateLabel);
+
+                // Crear nueva fila .week
+                currentWeek = document.createElement('div');
+                currentWeek.className = 'week';
+                wall.appendChild(currentWeek);
+            }
+
+            const block = document.createElement('div');
+            block.className = 'block ' + color;
+            block.textContent = `${today.getDate()}/${getMonthName(today.getMonth())}`;
+            currentWeek.appendChild(block);
+
+            // Guardar la fecha actual en localStorage
+            localStorage.setItem(wallId + "_lastDate", todayString);
+            saveBlock(wallId, today.getDate(), today.getMonth(), color);
+        }
+
+
+
+
+
+
 
         function saveBlock(wallId, day, month, color) {
             const blocks = JSON.parse(localStorage.getItem(wallId)) || [];
